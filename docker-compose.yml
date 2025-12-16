@@ -1,0 +1,67 @@
+version: "3.9"
+
+services:
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: safevault-sql
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "Your_Password123!"
+      MSSQL_PID: "Developer"
+    ports:
+      - "1433:1433"
+    networks:
+      - inventorysystem-net
+    volumes:
+      - sql_data:/var/opt/mssql
+
+  inventorysystem-api:
+    build:
+      context: .
+      dockerfile: InventorySystemAPI/Dockerfile
+    container_name: inventorysystem-api
+    depends_on:
+      - sqlserver
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__DefaultConnection: >
+        Server=safevault-sql,1433;
+        Database=SafeVaultDb;
+        User Id=sa;
+        Password=Your_Password123!;
+        TrustServerCertificate=True;
+    ports:
+      - "8080:8080"
+    networks:
+      - inventorysystem-net
+
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/swagger/index.html || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  inventorysystem-functional-tests:
+    build:
+      context: .
+      dockerfile: Tests/T3/Inventory.E2E.Tests/Dockerfile
+    container_name: inventory-functional-tests
+
+    depends_on:
+      inventorysystem-api:
+        condition: service_healthy
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ApiBaseUrl: "http://inventorysystem-api:8080"
+
+    networks:
+      - inventorysystem-net
+
+networks:
+  inventorysystem-net:
+
+volumes:
+  sql_data:
