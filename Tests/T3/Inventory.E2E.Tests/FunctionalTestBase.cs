@@ -11,7 +11,7 @@
     {
         Client = new HttpClient
         {
-            BaseAddress = new Uri("http://localhost:5075/")
+            BaseAddress = new Uri("http://inventorysystem-api:8080/")
         };
     }
 
