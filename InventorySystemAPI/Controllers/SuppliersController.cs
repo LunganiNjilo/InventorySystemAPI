@@ -1,10 +1,13 @@
 using Application.DTOs;
 using Application.Interfaces;
 using InventorySystemAPI.CustomActionFilters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InventorySystemAPI.Controllers
 {
+    [Authorize]
+    [AllowAnonymous] // temporary for tests
     [Route("api/[controller]")]
     [ApiController]
     public class SuppliersController : ControllerBase

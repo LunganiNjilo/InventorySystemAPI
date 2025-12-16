@@ -1,50 +1,53 @@
 using Application.DTOs;
 using Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InventorySystemAPI.Controllers
 {
-  [ApiController]
-  [Route("api/[controller]")]
-  public class ProductSuppliersController : ControllerBase
-  {
-    private readonly IProductSupplierService _service;
-
-    public ProductSuppliersController(IProductSupplierService service)
+    [Authorize]
+    [AllowAnonymous] // temporary for tests
+    [ApiController]
+    [Route("api/[controller]")]
+    public class ProductSuppliersController : ControllerBase
     {
-      _service = service;
-    }
+        private readonly IProductSupplierService _service;
 
-    [HttpGet]
-    public async Task<IActionResult> GetAll()
-    {
-      return Ok(await _service.GetAllAsync());
-    }
+        public ProductSuppliersController(IProductSupplierService service)
+        {
+            _service = service;
+        }
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> Get(Guid id)
-    {
-      return Ok(await _service.GetByIdAsync(id));
-    }
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            return Ok(await _service.GetAllAsync());
+        }
 
-    [HttpPost]
-    public async Task<IActionResult> Create(ProductSupplierCreateDto dto)
-    {
-      var created = await _service.CreateAsync(dto);
-      return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
-    }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(Guid id)
+        {
+            return Ok(await _service.GetByIdAsync(id));
+        }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(Guid id, ProductSupplierCreateDto dto)
-    {
-      return Ok(await _service.UpdateAsync(id, dto));
-    }
+        [HttpPost]
+        public async Task<IActionResult> Create(ProductSupplierCreateDto dto)
+        {
+            var created = await _service.CreateAsync(dto);
+            return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
+        }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(Guid id)
-    {
-      await _service.DeleteAsync(id);
-      return NoContent();
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(Guid id, ProductSupplierCreateDto dto)
+        {
+            return Ok(await _service.UpdateAsync(id, dto));
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            await _service.DeleteAsync(id);
+            return NoContent();
+        }
     }
-  }
 }

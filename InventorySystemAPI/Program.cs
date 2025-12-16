@@ -6,6 +6,9 @@ using Infrastructure.Extensions;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace InventorySystemAPI
 {
@@ -14,6 +17,19 @@ namespace InventorySystemAPI
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey =
+                    new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+                };
+            });
 
 
             // Add services to the container.
@@ -71,6 +87,7 @@ namespace InventorySystemAPI
 
             app.UseRouting();
             app.UseCors("corsapp");
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();

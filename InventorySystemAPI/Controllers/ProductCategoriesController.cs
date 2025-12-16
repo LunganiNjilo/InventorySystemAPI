@@ -1,7 +1,10 @@
 using Application.DTOs;
 using Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+[Authorize]
+[AllowAnonymous] // temporary for tests
 [ApiController]
 [Route("api/[controller]")]
 public class ProductCategoriesController : ControllerBase
